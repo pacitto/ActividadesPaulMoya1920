@@ -12,29 +12,31 @@
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 
-bool checkCursorCollision(SDL_Rect cursorRect, SDL_Rect textRect)
+
+struct position
+{
+	int x;
+	int y;
+	position() :x(0), y(0) {};
+};
+
+bool checkCursorCollision(position _playerTarget, SDL_Rect textRect)
 {
 
 	
-	int cursorTop, textTop; 
-	int cursorBottom, textBottom;
-	int cursorLeft, textLeft;
-	int cursorRight, textRight; 
+	int  textTop,textBottom,textLeft, textRight; 
 
-	cursorTop = cursorRect.y;
-	cursorLeft = cursorRect.x;
-	cursorBottom = cursorRect.y + cursorRect.h; 
-	cursorRight = cursorRect.x + cursorRect.w; 
-
+	
+	
 	textTop = textRect.y;
 	textLeft = textRect.x;
 	textBottom = textRect.y + textRect.h; 
 	textRight = textRect.x + textRect.w; 
 
-	if (cursorRight <= textLeft) return false;
-	if (cursorLeft >= textRight) return false;
-	if (cursorTop >= textBottom) return false;
-	if (cursorBottom <= textTop) return false;
+	if (_playerTarget.x <= textLeft) return false;
+	if (_playerTarget.x >= textRight) return false;
+	if (_playerTarget.y>= textBottom) return false;
+	if (_playerTarget.y<= textTop) return false;
 
 	else return true; 
 }
@@ -86,7 +88,9 @@ int main(int, char*[])
 
 	//Boton play
 	SDL_Color playButtonColor = { 255, 0 , 0, 255 };
-	SDL_Color playButtonHoverColor = { 0, 255, 0, 255 };
+	SDL_Color playButtonHoverColor = { 100, 0, 0, 255 };
+	SDL_Color playButtonActiveColor = { 0,255,0,255 }; 
+	SDL_Surface *playButtonActiveSurface = TTF_RenderText_Solid(font, "PLAY", playButtonActiveColor);
 	SDL_Surface *playButtonSurface = TTF_RenderText_Solid(font, "PLAY", playButtonColor); 
 	SDL_Surface *playButtonHoverSurface = TTF_RenderText_Solid(font, "PLAY", playButtonHoverColor); 
 	SDL_Texture * playButtonTexture = SDL_CreateTextureFromSurface(m_renderer, playButtonSurface);
@@ -109,27 +113,17 @@ int main(int, char*[])
 	SDL_Rect exitButtonRect{ 300, 390, 200, 65 };
 	
 
-	//Button States
+	//Button States, we need to struct them into pressed and hovers 
 
 	bool playHover = false;
 	bool soundHover = false;
 	bool exitHover = false;
-
-	 // ---CURSOR---
+	bool soundOff = false;
 
 	SDL_Texture *playerTexture{ IMG_LoadTexture(m_renderer, "../../res/img/kintoun.png") };
 	if (playerTexture == nullptr) throw "No s'han pogut crear les textures(cursor)";
 	SDL_Rect playerRect{ 0,0,60,32 };
-
-	struct position
-	{
-		int x;
-		int y;
-		position() :x(0), y(0) {};
-	};
-	
-
-	 position playerTarget; 
+	position playerTarget; 
 
 
 	// --- AUDIO ---
@@ -160,6 +154,23 @@ int main(int, char*[])
 			case SDL_KEYDOWN:
 				if (event.key.keysym.sym == SDLK_ESCAPE) isRunning = false;
 				break;
+			case SDL_MOUSEBUTTONUP:
+				if (exitHover) isRunning = false;
+
+				if (playHover) {
+					playButtonTexture = SDL_CreateTextureFromSurface(m_renderer, playButtonActiveSurface);
+				}
+				else playButtonTexture = SDL_CreateTextureFromSurface(m_renderer, playButtonSurface);
+
+				if (soundHover && soundOff == false) {
+					SDL_PauseAudio(1);
+					soundOff = true;
+				}
+				else if (soundHover && soundOff) {
+					SDL_PauseAudio(0);
+					soundOff = false; 
+				}
+				break;
 			default:;
 			}
 		}
@@ -175,42 +186,40 @@ int main(int, char*[])
 		//HOVER
 		//Player Hover
 		
-		if (checkCursorCollision(playerRect, playButtonRect) && playHover == false)
+		if (checkCursorCollision(playerTarget, playButtonRect) && playHover == false)
 		{
 			playButtonTexture = SDL_CreateTextureFromSurface(m_renderer, playButtonHoverSurface);
 			playHover = true; 
 			
 		}
-		else if (!checkCursorCollision(playerRect, playButtonRect) && playHover == true)
+		else if (!checkCursorCollision(playerTarget, playButtonRect) && playHover == true)
 		{
 			playButtonTexture = SDL_CreateTextureFromSurface(m_renderer, playButtonSurface);
 			playHover = false;
 		}
 		//Sound Hover
 		
-		if (checkCursorCollision(playerRect, soundButtonRect) && soundHover == false)
+		if (checkCursorCollision(playerTarget, soundButtonRect) && soundHover == false)
 		{
 			soundButtonTexture = SDL_CreateTextureFromSurface(m_renderer, soundButtonHoverSurface);
 			soundHover = true;
-			SDL_PauseAudio(1); 
 
 		}
-		else if (!checkCursorCollision(playerRect, soundButtonRect) && soundHover == true)
+		else if (!checkCursorCollision(playerTarget, soundButtonRect) && soundHover == true)
 		{
 			soundButtonTexture = SDL_CreateTextureFromSurface(m_renderer, soundButtonSurface);
 			soundHover = false;
-			SDL_PauseAudio(0);
 				
 		}
 		//Exit hover
-		if (checkCursorCollision(playerRect, exitButtonRect) && exitHover == false)
+		if (checkCursorCollision(playerTarget, exitButtonRect) && exitHover == false)
 		{
 			exitButtonTexture = SDL_CreateTextureFromSurface(m_renderer, exitButtonHoverSurface);
 			exitHover = true;
 			
 
 		}
-		else if (!checkCursorCollision(playerRect, exitButtonRect) && exitHover == true)
+		else if (!checkCursorCollision(playerTarget, exitButtonRect) && exitHover == true)
 		{
 			exitButtonTexture = SDL_CreateTextureFromSurface(m_renderer, exitButtonSurface);
 			exitHover = false;
