@@ -82,43 +82,63 @@ int main(int, char*[])
 
 	// --- TEXT ---
 	SDL_Color textColor = { 144, 77, 255, 255 };
-	SDL_Surface *textSurface = TTF_RenderText_Solid(font, "SDL GAME", textColor);
-	SDL_Texture *text = SDL_CreateTextureFromSurface(m_renderer, textSurface);
+	SDL_Surface *textTempSurface = TTF_RenderText_Solid(font, "SDL GAME", textColor);
+	SDL_Texture *text = SDL_CreateTextureFromSurface(m_renderer, textTempSurface);
 	SDL_Rect textRect{ 300, 50, 200, 65 };
 
 	//Boton play
 	SDL_Color playButtonColor = { 255, 0 , 0, 255 };
 	SDL_Color playButtonHoverColor = { 100, 0, 0, 255 };
 	SDL_Color playButtonActiveColor = { 0,255,0,255 }; 
-	SDL_Surface *playButtonActiveSurface = TTF_RenderText_Solid(font, "PLAY", playButtonActiveColor);
-	SDL_Surface *playButtonSurface = TTF_RenderText_Solid(font, "PLAY", playButtonColor); 
-	SDL_Surface *playButtonHoverSurface = TTF_RenderText_Solid(font, "PLAY", playButtonHoverColor); 
-	SDL_Texture * playButtonTexture = SDL_CreateTextureFromSurface(m_renderer, playButtonSurface);
+	
+	textTempSurface = TTF_RenderText_Solid(font, "PLAY", playButtonColor);							//we give the surface the info wanted         
+	SDL_Texture * playButtonTexture = SDL_CreateTextureFromSurface(m_renderer, textTempSurface);    //We create the texture using the surface with the info given
+	
+	textTempSurface = TTF_RenderText_Solid(font, "PLAY", playButtonHoverColor);
+	SDL_Texture * playButtonHoverTexture = SDL_CreateTextureFromSurface(m_renderer, textTempSurface);
+	
+	textTempSurface = TTF_RenderText_Solid(font, "PLAY", playButtonActiveColor);
+	SDL_Texture * playButtonActiveTexture = SDL_CreateTextureFromSurface(m_renderer, textTempSurface);
+	
 	SDL_Rect playButtonRect{ 300, 250, 200, 65 };
+	SDL_Texture *playButtonTexturePrint = playButtonTexture;
+
 	
 	//Boton Sound
 	SDL_Color soundButtonColor = { 255, 0 , 0, 255 };
 	SDL_Color soundButtonHoverColor = { 100, 0 , 0, 255 };
-	SDL_Surface *soundButtonSurface = TTF_RenderText_Solid(font, "Sound", soundButtonColor); 
-	SDL_Surface *soundButtonHoverSurface = TTF_RenderText_Solid(font, "Sound", soundButtonHoverColor); 
-	SDL_Texture * soundButtonTexture = SDL_CreateTextureFromSurface(m_renderer, soundButtonSurface);
+	
+	textTempSurface = TTF_RenderText_Solid(font, "Sound", soundButtonColor);
+	SDL_Texture *soundButtonTexture = SDL_CreateTextureFromSurface(m_renderer, textTempSurface);
+	
+	textTempSurface = TTF_RenderText_Solid(font, "Sound", soundButtonHoverColor);
+	SDL_Texture *soundButtonHoverTexture = SDL_CreateTextureFromSurface(m_renderer, textTempSurface);
+	
 	SDL_Rect soundButtonRect{ 250, 320, 300, 70 };
+	SDL_Texture *soundButtonTexturePrint = soundButtonTexture; 
 	
 	//Boton Exit
 	SDL_Color exitButtonColor = { 255, 0 , 0, 255 };
 	SDL_Color exitButtonHoverColor = { 100, 0 , 0, 255 };
-	SDL_Surface *exitButtonSurface = TTF_RenderText_Solid(font, "Exit", exitButtonColor); 
-	SDL_Surface *exitButtonHoverSurface = TTF_RenderText_Solid(font, "Exit", exitButtonHoverColor); 
-	SDL_Texture * exitButtonTexture = SDL_CreateTextureFromSurface(m_renderer, exitButtonSurface);
+	
+	textTempSurface = TTF_RenderText_Solid(font, "Exit", exitButtonColor);
+	SDL_Texture *exitButtonTexture = SDL_CreateTextureFromSurface(m_renderer, textTempSurface);
+	
+	textTempSurface = TTF_RenderText_Solid(font, "Exit", exitButtonHoverColor);
+	SDL_Texture *exitButtonHoverTexture = SDL_CreateTextureFromSurface(m_renderer, textTempSurface);
+	
 	SDL_Rect exitButtonRect{ 300, 390, 200, 65 };
+	SDL_Texture *exitButtonTexturePrint = exitButtonTexture; 
 	
 
 	//Button States, we need to struct them into pressed and hovers 
-
+	bool mouseClicked = false; 
 	bool playHover = false;
+	bool playRed = true; 
 	bool soundHover = false;
 	bool exitHover = false;
 	bool soundOff = false;
+
 
 	SDL_Texture *playerTexture{ IMG_LoadTexture(m_renderer, "../../res/img/kintoun.png") };
 	if (playerTexture == nullptr) throw "No s'han pogut crear les textures(cursor)";
@@ -155,21 +175,7 @@ int main(int, char*[])
 				if (event.key.keysym.sym == SDLK_ESCAPE) isRunning = false;
 				break;
 			case SDL_MOUSEBUTTONUP:
-				if (exitHover) isRunning = false;
-
-				if (playHover) {
-					playButtonTexture = SDL_CreateTextureFromSurface(m_renderer, playButtonActiveSurface);
-				}
-				else playButtonTexture = SDL_CreateTextureFromSurface(m_renderer, playButtonSurface);
-
-				if (soundHover && soundOff == false) {
-					SDL_PauseAudio(1);
-					soundOff = true;
-				}
-				else if (soundHover && soundOff) {
-					SDL_PauseAudio(0);
-					soundOff = false; 
-				}
+				mouseClicked = true; 
 				break;
 			default:;
 			}
@@ -180,61 +186,60 @@ int main(int, char*[])
 		playerRect.x += ((playerTarget.x  - playerRect.w / 2)- playerRect.x) / 10;
 		playerRect.y += ((playerTarget.y - playerRect.h/ 2)- playerRect.y) / 10;
 		
+		playHover = checkCursorCollision(playerTarget, playButtonRect); 
+		soundHover = checkCursorCollision(playerTarget, soundButtonRect); 
+		exitHover = checkCursorCollision(playerTarget, exitButtonRect); 
+
+		if (mouseClicked) {
+			if (exitHover) isRunning = false;
+
+			if (playHover) {
+				playRed = !playRed; 
+			}
+			
+
+			if (soundHover && soundOff == false) {
+			
+				SDL_PauseAudio(1);
+				soundOff = true;
+			}
+			else if (soundHover && soundOff) {
+				SDL_PauseAudio(0);
+				soundOff = false;
+			}
+			mouseClicked = false; 
+		}
+		
+		//Texture Updates
+		
+		//Play
+		if (playHover)
+		{
+			playButtonTexturePrint = playButtonHoverTexture; 
+		}
+		else {
+			if (playRed) playButtonTexturePrint = playButtonTexture; 
+			else playButtonTexturePrint = playButtonActiveTexture; 
+		}
+		
+		//Sound
+		if (soundHover) soundButtonTexturePrint = soundButtonHoverTexture;
+		else soundButtonTexturePrint = soundButtonTexture;
+		
+		//Exit
+		if (exitHover) exitButtonTexturePrint = exitButtonHoverTexture;
+		else exitButtonTexturePrint = exitButtonTexture;
+		
 		// DRAW
 		SDL_RenderClear(m_renderer);
 		
-		//HOVER
-		//Player Hover
-		
-		if (checkCursorCollision(playerTarget, playButtonRect) && playHover == false)
-		{
-			playButtonTexture = SDL_CreateTextureFromSurface(m_renderer, playButtonHoverSurface);
-			playHover = true; 
-			
-		}
-		else if (!checkCursorCollision(playerTarget, playButtonRect) && playHover == true)
-		{
-			playButtonTexture = SDL_CreateTextureFromSurface(m_renderer, playButtonSurface);
-			playHover = false;
-		}
-		//Sound Hover
-		
-		if (checkCursorCollision(playerTarget, soundButtonRect) && soundHover == false)
-		{
-			soundButtonTexture = SDL_CreateTextureFromSurface(m_renderer, soundButtonHoverSurface);
-			soundHover = true;
 
-		}
-		else if (!checkCursorCollision(playerTarget, soundButtonRect) && soundHover == true)
-		{
-			soundButtonTexture = SDL_CreateTextureFromSurface(m_renderer, soundButtonSurface);
-			soundHover = false;
-				
-		}
-		//Exit hover
-		if (checkCursorCollision(playerTarget, exitButtonRect) && exitHover == false)
-		{
-			exitButtonTexture = SDL_CreateTextureFromSurface(m_renderer, exitButtonHoverSurface);
-			exitHover = true;
-			
-
-		}
-		else if (!checkCursorCollision(playerTarget, exitButtonRect) && exitHover == true)
-		{
-			exitButtonTexture = SDL_CreateTextureFromSurface(m_renderer, exitButtonSurface);
-			exitHover = false;
-			
-				
-		}
-		 
-		
-	
 		//Background
 		SDL_RenderCopy(m_renderer, bgTexture, nullptr, &bgRect);
 		SDL_RenderCopy(m_renderer, text, nullptr, &textRect);    //Maiin text
-		SDL_RenderCopy(m_renderer, playButtonTexture, nullptr, &playButtonRect); 
-		SDL_RenderCopy(m_renderer, soundButtonTexture, nullptr, &soundButtonRect); 
-		SDL_RenderCopy(m_renderer, exitButtonTexture, nullptr, &exitButtonRect); 
+		SDL_RenderCopy(m_renderer, playButtonTexturePrint, nullptr, &playButtonRect); 
+		SDL_RenderCopy(m_renderer, soundButtonTexturePrint, nullptr, &soundButtonRect); 
+		SDL_RenderCopy(m_renderer, exitButtonTexturePrint, nullptr, &exitButtonRect); 
 		
 		//Cursor
 		SDL_RenderCopy(m_renderer, playerTexture, nullptr, &playerRect);
@@ -246,9 +251,9 @@ int main(int, char*[])
 	SDL_DestroyTexture(bgTexture);
 	SDL_DestroyTexture(playerTexture); 
 	SDL_DestroyTexture(text); 
-	SDL_DestroyTexture(playButtonTexture); 
-	SDL_DestroyTexture(soundButtonTexture); 
-	SDL_DestroyTexture(exitButtonTexture); 
+	SDL_DestroyTexture(playButtonTexturePrint); 
+	SDL_DestroyTexture(soundButtonTexturePrint); 
+	SDL_DestroyTexture(exitButtonTexturePrint); 
 	Mix_CloseAudio();
 	//SDL_FreeSurface(tmpSurf);
 	//TTF_CloseFont(font);
