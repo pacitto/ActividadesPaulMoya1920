@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<enemies>
+	<enemy>
+		<name>Pinky</name>
+		<attack>10</attack>
+		<health>100</health>
+		<defense>50</defense>
+		<experience>110</experience>
+		<weapons>
+			<weapon name="sword">
+				<type>melee</type>
+				<range>2</range>
+			</weapon>
+			<weapon name="flamethrower">
+				<type>ranged</type>
+				<range>6</range>
+			</weapon>
+		</weapons>
+	</enemy>
+	<enemy>
+		<name>Stinky</name>
+		<attack>20</attack>
+		<health>90</health>
+		<defense>55</defense>
+		<experience>120</experience>
+		<weapons>
+			<weapon name="knife">
+				<type>melee</type>
+				<range>1</range>
+			</weapon>
+			<weapon name="staff">
+				<type>ranged</type>
+				<range>12</range>
+			</weapon>
+		</weapons>
+	</enemy>
+	<enemy>
+		<name>Clinky</name>
+		<attack>30</attack>
+		<health>80</health>
+		<defense>60</defense>
+		<experience>120</experience>
+		<weapons>
+			<weapon name="axe">
+				<type>melee</type>
+				<range>1</range>
+			</weapon>
+			<weapon name="crossbow">
+				<type>ranged</type>
+				<range>7</range>
+			</weapon>
+		</weapons>
+	</enemy>
+	<enemy>
+		<name>Twinky</name>
+		<attack>40</attack>
+		<health>70</health>
+		<defense>45</defense>
+		<experience>130</experience>
+		<weapons>
+			<weapon name="dagger">
+				<type>melee</type>
+				<range>1</range>
+			</weapon>
+			<weapon name="bow">
+				<type>ranged</type>
+				<range>10</range>
+			</weapon>
+		</weapons>
+	</enemy>
+	<enemy>
+		<name>Inky</name>
+		<attack>50</attack>
+		<health>60</health>
+		<defense>40</defense>
+		<experience>140</experience>
+		<weapons>
+			<weapon name="sword">
+				<type>melee</type>
+				<range>2</range>
+			</weapon>
+			<weapon name="fireball">
+				<type>ranged</type>
+				<range>11</range>
+			</weapon>
+		</weapons>
+	</enemy>
+</enemies>
